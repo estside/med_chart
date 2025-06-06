@@ -50,6 +50,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://med-chart.onrender.com/',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+]
+
 
 ROOT_URLCONF = 'medbot.urls'
 
