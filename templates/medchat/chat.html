@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Doctor Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .chat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+    
+    .chat-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      font-size: 1.4rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    
+    .chat-body {
+      background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+      height: 500px;
+      overflow-y: auto;
+      padding: 2rem;
+      scroll-behavior: smooth;
+      position: relative;
+    }
+    
+    .chat-footer {
+      background: #f8fafc;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    
+    .message {
+      max-width: 75%;
+      padding: 1rem 1.5rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      position: relative;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .user-message {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      margin-left: auto;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    
+    .assistant-message {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: #334155;
+      margin-right: auto;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #64748b;
+      font-style: italic;
+      margin-bottom: 1rem;
+      padding: 1rem 1.5rem;
+      background: rgba(248, 250, 252, 0.8);
+      border-radius: 20px;
+      max-width: 75%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+    
+    .dots::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      text-align: left;
+      animation: dots 1.5s infinite;
+    }
+    
+    @keyframes dots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+      100% { content: ''; }
+    }
+    
+    #scrollToBottomBtn {
+      position: absolute;
+      bottom: 90px;
+      right: 25px;
+      z-index: 10;
+      display: none;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+    
+    #scrollToBottomBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+    }
+    
+    .form-control {
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .form-control:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      border: none;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      border-radius: 12px;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    }
+    
+    #recordingStatus {
+      color: #ef4444;
+      font-weight: 500;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    #audioPlayback {
+      margin-top: 0.75rem;
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .loading-message {
+      display: none;
+      text-align: center;
+      color: #64748b;
+      font-style: italic;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(248, 250, 252, 0.8);
+      border-radius: 12px;
+      animation: pulse 2s infinite;
+    }
+    </style>
+    
+</head>
+<body>
+<div class="container py-4">
+  <div class="chat-card">
+    <div class="chat-header">
+      <span>🩺 AI Doctor</span>
+      <div class="d-flex gap-2">
+        <a href="?clear=true" class="btn btn-sm btn-outline-light">🧹 New Chat</a>
+        <a href="{% url 'download_chat_pdf' %}" class="btn btn-sm btn-light text-dark">📄 Download Chat</a>
+      </div>
+    </div>
+    <div class="chat-body" style="position: relative;">
+      {% for msg in request.session.chat_history %}
+        <div class="message {% if msg.role == 'user' %}user-message{% else %}assistant-message{% endif %}">{{ msg.content }}</div>
+      {% endfor %}
+
+      {% if audio_response %}
+        <div class="message assistant-message">
+          <strong>Doctor's Voice:</strong><br>
+          <audio controls src="/media/{{ audio_response }}"></audio>
+        </div>
+      {% endif %}
+
+      <div class="scroll-anchor"></div>
+      <button id="scrollToBottomBtn" title="Scroll to bottom" style="
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  z-index: 10;
+  display: none;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+">
+  ↓
+</button>
+
+    </div>
+    <div class="chat-footer">
+      <div id="loading-message" class="loading-message">🧠 AI is thinking<span class="dots"></span></div>
+      <form method="POST" enctype="multipart/form-data" class="d-flex gap-2 align-items-center" id="chatForm">
+        {% csrf_token %}
+        <input type="text" name="text_input" class="form-control" placeholder="Type your question..." />
+        <input type="file" name="image_input" id="image_input" class="form-control" accept="image/*" />
+        <input type="file" name="audio_input" id="audio_input" accept="audio/*" hidden />
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="recordButton">🎧</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="stopButton" style="display: none;">🚩</button>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+      <div id="recordingStatus" style="display: none; color: red;">
+        ⏺ Recording... <span id="recordTimer">0</span>s
+        <div class="waveform" id="waveform">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </div>
+      </div>
+      <audio id="audioPlayback" controls style="display: none;"></audio>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("chatForm");
+    const loadingMessage = document.getElementById("loading-message");
+    const scrollAnchor = document.querySelector(".scroll-anchor");
+    const recordButton = document.getElementById("recordButton");
+    const stopButton = document.getElementById("stopButton");
+    const audioInput = document.getElementById("audio_input");
+    const audioPlayback = document.getElementById("audioPlayback");
+    const recordingStatus = document.getElementById("recordingStatus");
+    const recordTimer = document.getElementById("recordTimer");
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let recordingTimer;
+    let secondsElapsed = 0;
+
+    form.addEventListener("submit", (e) => {
+      // Show loading message when form is submitted
+      loadingMessage.style.display = "block";
+      
+      // Scroll to bottom to show loading message
+      setTimeout(() => {
+        scrollAnchor.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    });
+
+    // Hide loading message when page loads (after server response)
+    window.addEventListener("load", () => {
+      loadingMessage.style.display = "none";
+    });
+
+    recordButton.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        secondsElapsed = 0;
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          clearInterval(recordingTimer);
+          recordingStatus.style.display = "none";
+          stopButton.style.display = "none";
+          recordButton.disabled = false;
+
+          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioPlayback.src = audioUrl;
+          audioPlayback.style.display = "block";
+
+          const file = new File([audioBlob], "recording.webm", { type: "audio/webm" });
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          audioInput.files = dt.files;
+        };
+
+        mediaRecorder.start();
+        recordButton.disabled = true;
+        stopButton.style.display = "inline-block";
+        recordingStatus.style.display = "inline";
+        recordTimer.textContent = "0";
+
+        recordingTimer = setInterval(() => {
+          secondsElapsed++;
+          recordTimer.textContent = secondsElapsed;
+          if (secondsElapsed >= 10) {
+            mediaRecorder.stop();
+          }
+        }, 1000);
+      } catch (err) {
+        alert("🎧 Microphone access is required. Please allow it in your browser settings.");
+      }
+    });
+
+    stopButton.addEventListener("click", () => {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    });
+  });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const chatBody = document.querySelector(".chat-body");
+  const scrollBtn = document.getElementById("scrollToBottomBtn");
+
+  // Show button if user scrolls up
+  chatBody.addEventListener("scroll", () => {
+    const atBottom = chatBody.scrollHeight - chatBody.scrollTop <= chatBody.clientHeight + 50;
+    scrollBtn.style.display = atBottom ? "none" : "block";
+  });
+
+  // Scroll to bottom on click
+  scrollBtn.addEventListener("click", () => {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  });
+
+  // Auto-scroll on load
+  chatBody.scrollTop = chatBody.scrollHeight;});
+</script>
+
+
+</body>
+</html>

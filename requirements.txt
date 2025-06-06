@@ -1,0 +1,38 @@
+# Core Django setup
+Django>=4.2
+djangorestframework>=3.14
+gunicorn
+whitenoise
+
+# OpenAI/Groq API Client
+groq==0.5.0
+
+  # or latest compatible version
+
+# Image processing
+Pillow>=10.0
+
+# Speech-to-Text (using Whisper)
+openai-whisper
+torch  # Needed for whisper
+ffmpeg-python  # For audio conversion
+
+# Text-to-Speech
+gTTS>=2.3.2
+pydub>=0.25.1
+
+# Audio handling
+SpeechRecognition>=3.10.0
+
+# HTML to PDF (clean PDF downloads)
+reportlab>=4.0
+
+# Optional: if you want HTML/CSS-based beautiful PDF export
+# Note: Requires system dependencies to be installed (Cairo, Pango, etc.)
+# weasyprint==60.1
+
+# Env and file handling
+python-dotenv>=1.0.0
+
+# For drag/drop uploads in Django (used with JS on frontend)
+django-widget-tweaks>=1.4.12
