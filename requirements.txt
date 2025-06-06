@@ -26,6 +26,7 @@ SpeechRecognition>=3.10.0
 
 # HTML to PDF (clean PDF downloads)
 reportlab>=4.0
+elevenlabs
 
 # Optional: if you want HTML/CSS-based beautiful PDF export
 # Note: Requires system dependencies to be installed (Cairo, Pango, etc.)
