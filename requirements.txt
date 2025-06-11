@@ -7,7 +7,8 @@ elevenlabs
 
 
 # OpenAI/Groq API Client
-groq==0.5.0
+groq==0.6.0
+
 
 # Image processing
 Pillow>=10.0
