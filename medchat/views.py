@@ -25,7 +25,14 @@ os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
 system_prompt = """
 You are a professional medical doctor. You answer patient queries based on medical reasoning. Be concise, accurate, and do not speculate. When unsure, recommend seeing a real doctor.
 """
+# Patch the constructor to ignore 'proxies'
+original_init = groq._base_client.SyncHttpxClientWrapper.__init__
 
+def patched_init(self, *args, **kwargs):
+    kwargs.pop("proxies", None)  # Remove problematic arg if exists
+    original_init(self, *args, **kwargs)
+
+groq._base_client.SyncHttpxClientWrapper.__init__ = patched_init
 # Generate medical summary from chat history
 def summarize_chat(chat_history):
     doctor_responses = "\n".join(
