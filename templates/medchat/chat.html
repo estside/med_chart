@@ -195,6 +195,16 @@
       border-radius: 12px;
       animation: pulse 2s infinite;
     }
+    btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
     </style>
     
 </head>
@@ -206,6 +216,11 @@
       <div class="d-flex gap-2">
         <a href="?clear=true" class="btn btn-sm btn-outline-light">🧹 New Chat</a>
         <a href="{% url 'download_chat_pdf' %}" class="btn btn-sm btn-light text-dark">📄 Download Chat</a>
+         <a href="{% url 'download_summary' %}" class="btn btn-info" style="margin-left: 10px;">⬇️ Download Summary Only</a>
+         <a href="?voice={% if voice_enabled %}false{% else %}true{% endif %}" 
+   class="btn btn-sm {% if voice_enabled %}btn-success{% else %}btn-outline-light{% endif %}">
+  {% if voice_enabled %}🔊 Voice ON{% else %}🔇 Voice OFF{% endif %}
+</a>
       </div>
     </div>
     <div class="chat-body" style="position: relative;">
@@ -213,12 +228,12 @@
         <div class="message {% if msg.role == 'user' %}user-message{% else %}assistant-message{% endif %}">{{ msg.content }}</div>
       {% endfor %}
 
-      {% if audio_response %}
-        <div class="message assistant-message">
-          <strong>Doctor's Voice:</strong><br>
-          <audio controls src="/media/{{ audio_response }}"></audio>
-        </div>
-      {% endif %}
+      {% if audio_response and voice_enabled %}
+  <div class="message assistant-message">
+    <strong>Doctor's Voice:</strong><br>
+    <audio controls src="/media/{{ audio_response }}"></audio>
+  </div>
+{% endif %}
 
       <div class="scroll-anchor"></div>
       <button id="scrollToBottomBtn" title="Scroll to bottom" style="
